@@ -87,7 +87,9 @@ namespace WebApplication1.Controllers
 
         private string FormatPoints(long points)
         {
-            return points >= 1000 ? $"{points / 1000}K" : points.ToString();
+            if(points <= 1000) 
+                return points.ToString();
+            return points % 1000 >= 500 ? $"{(points / 1000) + 1}K" : $"{points / 1000}K";
         }
 
         private string FormatDate(DateTime date)
