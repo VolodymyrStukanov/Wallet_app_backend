@@ -30,15 +30,15 @@
         {
             var seasonsStart = new Dictionary<int, DateTime>
             {
-                { 0, new DateTime(date.Year, 12, 1) },
+                { 0, new DateTime(date.Month < 3 ? date.Year - 1 : date.Year, 12, 1) },
                 { 1, new DateTime(date.Year, 3, 1) },
                 { 2, new DateTime(date.Year, 6, 1) },
                 { 3, new DateTime(date.Year, 9, 1) }
             };
 
             var season = seasonsStart
-                .OrderByDescending(kv => kv.Value)
-                .FirstOrDefault(kv => date >= kv.Value);
+                .OrderByDescending(x => x.Value)
+                .FirstOrDefault(x => date >= x.Value);
 
             return (date - season.Value).Days + 1;
         }

@@ -43,7 +43,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
 
                     b.HasData(
                         new
@@ -95,7 +95,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("AuthorizedUserId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", (string)null);
 
                     b.HasData(
                         new
@@ -252,7 +252,7 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
 
                     b.HasData(
                         new

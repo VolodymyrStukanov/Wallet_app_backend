@@ -13,7 +13,7 @@ namespace WebApplication1.Controllers
             JsonSerializerOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         }
 
-        protected IActionResult BuildSuccessResult(object? data, string? message, int httpCode = 200)
+        protected ContentResult BuildSuccessResult(object? data, string? message, int httpCode = 200)
         {
             var dataJSON = JsonSerializer.Serialize(data, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
@@ -25,7 +25,7 @@ namespace WebApplication1.Controllers
 
         }
 
-        protected IActionResult BuildErrorResult(string? message, int httpCode)
+        protected ContentResult BuildErrorResult(string? message, int httpCode)
         {
             Response.StatusCode = httpCode;
             return Content("{" +

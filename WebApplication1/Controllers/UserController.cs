@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using WebApplication1.DB.Models;
+using WebApplication1.Models;
 using WebApplication1.Services;
 
 namespace WebApplication1.Controllers
@@ -36,14 +37,14 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetAccountDetails(int id)
+        public ActionResult<UserDetailsModel> GetAccountDetails(int id)
         {
             try
             {
                 var cacheKey = $"AccountDetails_{id}";
-                if (_cache.TryGetValue(cacheKey, out object? cachedData))
+                if (_cache.TryGetValue<UserDetailsModel>(cacheKey, out UserDetailsModel? cachedData))
                 {
-                    return Ok(cachedData);
+                    return BuildSuccessResult(cachedData, "Account is found", 200);
                 }
 
                 var account = _accountService.GetAccountById(id);
@@ -52,30 +53,33 @@ namespace WebApplication1.Controllers
 
 
                 if (account == null)
-                    return BadRequest(new { Message = "Account not found." });
+                    return BuildErrorResult("Account not found.", 400);
 
                 var currentDate = DateTime.UtcNow;
                 var dailyPoints = _pointService.GetDailyPoints(currentDate);
 
-                var response = new
+                var response = new UserDetailsModel()
                 {
                     Balance = account.CardBalance,
                     Available = account.Limit - account.CardBalance,
                     NoPaymentDue = $"You’ve paid your {currentDate.ToString("MMMM")} balance.",
                     DailyPoints = FormatPoints(dailyPoints),
-                    LatestTransactions = transactions.Select(t => new
+                    Transactions = transactions.Select(t =>
                     {
-                        t.Id,
-                        t.Type,
-                        Amount = t.Type == TransactionType.Payment ? $"+{t.Amount}" : $"{t.Amount}",
-                        t.Name,
-                        t.Description,
-                        Date = FormatDate(t.Date),
-                        AuthorizedUser = t.AuthorizedUser != null ? t.AuthorizedUser.Name : null,
+                        return new TransactionModel()
+                        {
+                            Id = t.Id,
+                            Type = t.Type,
+                            Amount = t.Type == TransactionType.Payment ? $"+{t.Amount}" : $"{t.Amount}",
+                            Name = t.Name,
+                            Description = t.Description,
+                            Date = FormatDate(t.Date),
+                            AuthorizedUser = t.AuthorizedUser?.Name,
+                        };
                     })
                 };
 
-                _cache.Set(cacheKey, response, _cacheOption);
+                _cache.Set<UserDetailsModel>(cacheKey, response, _cacheOption);
                 return BuildSuccessResult(response, "Account is found", 200);
             }
             catch (Exception ex)
